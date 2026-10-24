@@ -9,6 +9,7 @@
 #   STATION_IP=192.168.1.94 DEVICE_ID=M00NMVZ009MZ1K scripts/root-adb.sh
 set -e
 
+REPO_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 WORKDIR="${WORKDIR:-$HOME/yandex-station-root}"
 UPSTREAM="https://github.com/hu553in/yandex-station-root"
 LOCAL_IP="${LOCAL_IP:-$(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')}"
@@ -68,7 +69,7 @@ cat <<TXT
 
 Если прокси должен быть виден станции по DNS — настройте роутер (OpenWrt):
 
-    $(pwd)/../yandex-station-mini2-toolkit/scripts/router-dns.sh --proxy $PROXY_IP
+    $REPO_ROOT/scripts/router-dns.sh --proxy $PROXY_IP
 
 или, если не OpenWrt: отдайте станции DNS-сервер $PROXY_IP
 (и уберите DNS-подмену у всех остальных устройств).
@@ -114,7 +115,7 @@ cat <<TXT
 Дальше — наш репозиторий:
 
     export STATION=$STATION_IP
-    scripts/bootstrap.sh --with-airplay
+    $REPO_ROOT/scripts/bootstrap.sh --with-airplay
 
 Остановить прокси: Ctrl+C в его терминале (или sudo pkill -f mitmdump; sudo pkill -f dns_proxy.py)
 TXT
