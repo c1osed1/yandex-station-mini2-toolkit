@@ -137,3 +137,36 @@ export PATH=/usr/local/bin:$PATH
 ```
 
 То же касается любого `curl` внутри buster — добавляйте `-k` или обновляйте `ca-certificates`.
+
+## 9. Spotify Connect не работает: Spotify не отдаёт аудио третьим клиентам
+
+Проверено на двух клиентах — `spotifyd 0.4.1` (librespot 0.4) и `librespot 0.6.0`, собранном
+вручную. В обоих случаях:
+
+```
+ERROR librespot_playback::player] Track should be available, but no alternatives found.
+WARN  librespot_playback::player] <spotify:track:...> is not available
+```
+
+В метаданных трека при этом:
+
+```
+file: []
+alternative: []
+restriction: []        # ограничений по стране нет
+availability: []
+```
+
+То есть Spotify возвращает трек **без единого аудиофайла**. Проверено:
+
+- аккаунт **Premium** (`"type": "premium"`, `"financial-product": "pr:premium,..."`);
+- страна аккаунта `SG`, но `restriction` пустой — не гео-ограничение;
+- разные битрейты (96/160/320) — без разницы;
+- OAuth-авторизация проходит, AP-соединение устанавливается, устройство видно в Spotify.
+
+Причина — политика Spotify: их сервер не выдаёт аудио неофициальным клиентам, даже при
+Premium. Обходится только своими `client_id`/`client_secret` (что не даёт права на streaming)
+или отказом от сторонних клиентов.
+
+**Рабочий путь для Spotify на станции — AirPlay.** Приложение Spotify умеет выводить звук на
+AirPlay-приёмник, а `shairport-sync` на станции играет без проблем.

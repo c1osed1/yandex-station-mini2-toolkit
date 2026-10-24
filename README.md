@@ -17,7 +17,7 @@
 | SSH (dropbear) | `ssh alisa-2` с баннером, только по ключу | `scripts/install-ssh.sh` |
 | fastfetch | красивый логин-баннер | `scripts/install-fastfetch.sh` |
 | AirPlay | станция как AirPlay-приёмник | `scripts/install-airplay.sh` |
-| Spotify Connect | станция как устройство в приложении Spotify (OAuth, без пароля) | `scripts/install-spotifyd.sh` |
+| Spotify Connect | **не работает** — Spotify не отдаёт аудио сторонним клиентам ([подробности](docs/FINDINGS.md#9-spotify-connect-не-работает-spotify-не-отдаёт-аудио-третьим-клиентам)) | `scripts/install-spotifyd.sh` |
 
 ## Быстрый старт
 
@@ -32,9 +32,7 @@
 export STATION=192.168.1.94        # IP станции
 scripts/install-ssh.sh             # dropbear + ключ + автозапуск
 scripts/install-fastfetch.sh       # баннер
-scripts/install-spotifyd.sh        # Spotify Connect (по умолчанию)
-# или, если нужен AirPlay:
-# scripts/install-airplay.sh
+scripts/install-airplay.sh         # AirPlay — через него и играет Spotify
 ```
 
 ### Spotify Connect: авторизация
