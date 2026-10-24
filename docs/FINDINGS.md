@@ -170,3 +170,36 @@ Premium. Обходится только своими `client_id`/`client_secret
 
 **Рабочий путь для Spotify на станции — AirPlay.** Приложение Spotify умеет выводить звук на
 AirPlay-приёмник, а `shairport-sync` на станции играет без проблем.
+
+## 10. Проверено с librespot 0.8.0 и spotiya: audio key
+
+`librespot 0.8.0` исправляет пустые метаданные (перешёл на extended-metadata), но дальше
+упирается в ключи:
+
+```
+[ERROR librespot_core::audio_key] error audio key 0 1
+[WARN  librespot_playback::player] Unable to load key, continuing without decryption
+[WARN  librespot_core::dealer] Websocket connection failed: peer closed connection without
+      sending TLS close_notify
+```
+
+Это открытый баг librespot [#1649](https://github.com/librespot-org/librespot/issues/1649),
+затрагивающий 0.7.0+. Воспроизводится и на `spotiya 0.7.1` (обёртка над librespot 0.8.0,
+сделанная специально под Мини 2).
+
+Что проверено и исключено:
+
+- аккаунт Premium, `"explicit-content": "1"`, `"streaming": "1"` — не фильтры;
+- разные битрейты (96/160/320);
+- разные шлюзы (блокировка `ap-gew1.spotify.com` через DNS);
+- маршрутизация трафика станции через прокси/VPN на роутере (вместо прямого выхода);
+- полная перезагрузка станции.
+
+Ошибка воспроизводится стабильно, то есть это серверная политика Spotify по отношению к
+клиенту, а не проблема сборки.
+
+**Вывод: Spotify Connect на станции сейчас не работает.** Рабочая альтернатива — AirPlay
+(приложение Spotify умеет выводить звук на AirPlay-приёмник).
+
+`spotiya` при этом остаётся лучшим кандидатом: он сделан именно под Мини 2 (кнопки, дисплей,
+голосовое управление), и как только Spotify перестанет упираться — заработает как есть.
