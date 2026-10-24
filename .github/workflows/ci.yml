@@ -13,7 +13,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq shellcheck
-          shellcheck -s sh scripts/*.sh build/*.sh \
+          shellcheck -x -s sh scripts/*.sh build/*.sh \
             files/etc/init.d/S99dropbear files/etc/init.d/S99hostname-alisa \
             files/etc/init.d/S99shairport files/etc/init.d/S99spotifyd \
             files/etc/airplay-free.sh files/etc/profile.d/alisa-banner.sh
