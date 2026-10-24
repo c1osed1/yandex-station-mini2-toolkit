@@ -17,7 +17,7 @@
 | SSH (dropbear) | `ssh alisa-2` с баннером, только по ключу | `scripts/install-ssh.sh` |
 | fastfetch | красивый логин-баннер | `scripts/install-fastfetch.sh` |
 | AirPlay | станция как AirPlay-приёмник | `scripts/install-airplay.sh` |
-| Spotify Connect | станция как устройство Spotify | `scripts/install-spotifyd.sh` |
+| Spotify Connect | станция как устройство в приложении Spotify (OAuth, без пароля) | `scripts/install-spotifyd.sh` |
 
 ## Быстрый старт
 
@@ -32,8 +32,30 @@
 export STATION=192.168.1.94        # IP станции
 scripts/install-ssh.sh             # dropbear + ключ + автозапуск
 scripts/install-fastfetch.sh       # баннер
-scripts/install-airplay.sh         # AirPlay-приёмник
+scripts/install-spotifyd.sh        # Spotify Connect (по умолчанию)
+# или, если нужен AirPlay:
+# scripts/install-airplay.sh
 ```
+
+### Spotify Connect: авторизация
+
+Пароль вводить не нужно, используется OAuth:
+
+```sh
+# 1) на станции запускаем авторизацию
+ssh alisa-2 '/system/vendor/quasar/bin/spotifyd authenticate \
+  --cache-path /system/vendor/quasar/spotifyd-cache --oauth-port 8000'
+# 2) в другом окне — туннель, чтобы redirect попал на станцию
+ssh -L 8000:127.0.0.1:8000 alisa-2
+# 3) открыть выданную ссылку в браузере и войти в Spotify
+```
+
+Токен сохраняется в `/system/vendor/quasar/spotifyd-cache` (переживает перезагрузку).
+
+### AirPlay выключен по умолчанию
+
+`S99shairport` в `files/` есть, но на устройстве он отключён (`S99shairport.disabled`).
+Включить обратно: `adb shell 'mv /etc/init.d/S99shairport.disabled /etc/init.d/S99shairport && /etc/init.d/S99shairport start'`.
 
 ## Сборка бинарников
 
