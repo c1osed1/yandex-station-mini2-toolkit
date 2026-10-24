@@ -1,12 +1,15 @@
 #!/bin/sh
-# Мини-монитор на индикаторе (см. /etc/statusd.sh)
+# Анимации на индикаторе. Режим: /etc/statusd.conf (STATUSD_MODE=face|monitor)
 PID=/var/run/statusd.pid
+CONF=/etc/statusd.conf
 case "$1" in
   start)
     [ -x /etc/statusd.sh ] || exit 0
     if [ -f "$PID" ] && kill -0 "$(cat $PID)" 2>/dev/null; then exit 0; fi
     mkdir -p /var/run
-    /etc/statusd.sh >/tmp/statusd.log 2>&1 &
+    # shellcheck source=/dev/null
+    [ -r "$CONF" ] && . "$CONF"
+    STATUSD_MODE="${STATUSD_MODE:-face}" /etc/statusd.sh >/tmp/statusd.log 2>&1 &
     echo $! > "$PID"
     ;;
   stop)
