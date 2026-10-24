@@ -1,0 +1,26 @@
+#!/bin/sh
+# Spotify Connect. Перед стартом освобождает ALSA у mediad.
+DAEMON=/system/vendor/quasar/bin/spotifyd
+CONF=/etc/spotifyd.conf
+PID=/var/run/spotifyd.pid
+LOG=/tmp/spotifyd.log
+case "$1" in
+  start)
+    [ -x "$DAEMON" ] || exit 0
+    mkdir -p /var/run
+    if [ -f "$PID" ] && kill -0 "$(cat $PID)" 2>/dev/null; then exit 0; fi
+    (
+      echo "$(date) init: ждём 20 сек" >> "$LOG"
+      sleep 20
+      /etc/airplay-free.sh
+      "$DAEMON" --config-path "$CONF" --no-daemon >> "$LOG" 2>&1 &
+      echo $! > "$PID"
+      echo "$(date) init: spotifyd pid=$(cat $PID)" >> "$LOG"
+    ) &
+    ;;
+  stop)
+    [ -f "$PID" ] && kill "$(cat $PID)" 2>/dev/null; rm -f "$PID"
+    ;;
+  restart) "$0" stop; sleep 1; "$0" start ;;
+  *) echo "usage: $0 {start|stop|restart}"; exit 1 ;;
+esac
