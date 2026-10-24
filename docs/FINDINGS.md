@@ -122,3 +122,18 @@ grep -c updatesd /system/vendor/quasar/launch.json   # 0
   Надёжнее завернуть её трафик на прокси через `dnat`/`redirect` по MAC.
 - **QUIC (UDP 443)** капризен: если перехватываете только TCP, станция может обновиться по
   QUIC незаметно для вас.
+
+## 8. Сборка Rust-бинарников в Debian buster
+
+`rustup` в buster **не работает**: устаревшие корневые сертификаты, curl внутри rustup падает с
+`SSL certificate problem`. Обход — ставить Rust напрямую из дистрибутива:
+
+```sh
+curl -kfsSL -o rust.tar.gz \
+  https://static.rust-lang.org/dist/rust-1.75.0-armv7-unknown-linux-gnueabihf.tar.gz
+tar xzf rust.tar.gz && cd rust-1.75.0-armv7-unknown-linux-gnueabihf
+./install.sh --prefix=/usr/local --disable-ldconfig
+export PATH=/usr/local/bin:$PATH
+```
+
+То же касается любого `curl` внутри buster — добавляйте `-k` или обновляйте `ca-certificates`.
