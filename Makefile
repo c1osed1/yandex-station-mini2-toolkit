@@ -2,7 +2,7 @@
 STATION ?= 192.168.1.94
 export STATION
 
-.PHONY: help root-adb router-dns build-all build-dropbear build-fastfetch build-shairport build-spotifyd \
+.PHONY: help install-statusd root-adb router-dns build-all build-dropbear build-fastfetch build-shairport build-spotifyd \
         install-ssh install-fastfetch install-airplay install-spotifyd uninstall lint
 
 help:
@@ -22,6 +22,7 @@ help:
 	  '  make install-ssh        dropbear + ключ + автозапуск' \
 	  '  make install-fastfetch  fastfetch + баннер при входе' \
 	  '  make install-airplay    AirPlay-приёмник' \
+	  '  make install-statusd    мини-монитор на индикаторе (температура/загрузка)' \
 	  '  make install-spotifyd   Spotify Connect' \
 	  '  make uninstall          снять всё, кроме ADB-гарда' \
 	  '' \
@@ -40,6 +41,7 @@ build-spotifyd:    ; build/build-spotifyd.sh
 install-ssh:       ; scripts/install-ssh.sh
 install-fastfetch: ; scripts/install-fastfetch.sh
 install-airplay:   ; scripts/install-airplay.sh
+install-statusd:   ; scripts/install-statusd.sh
 install-spotifyd:  ; scripts/install-spotifyd.sh
 uninstall:         ; scripts/uninstall.sh
 
