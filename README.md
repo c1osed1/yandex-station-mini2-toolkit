@@ -58,6 +58,23 @@ ssh alisa-2          # баннер + root shell
 adb connect $STATION:5555
 ```
 
+## Как это выглядит
+
+```
+$ ssh alisa-2
+    ___       root@alisa-2
+   (.. \      ------------
+   (<> |      OS: Buildroot 2020.02.1 aarch64
+  //  \ \     Host: Yandex Station Mini 2
+ ( |  | /|    Kernel: Linux 4.9.68
+_/\ __)/_)    Uptime: 3 days, 4 hours
+\/-____\/     CPU:  axg (4) @ 1.20 GHz
+              Memory: 117.30 MiB / 238.28 MiB (49%)
+              Disk (/): 58.87 MiB / 65.74 MiB (90%) - ubifs
+              Local IP (wlan0): 192.168.1.94/24
+  quasar 3.21   SSH on  ADB on
+```
+
 ## Требования
 
 - Станция с **root ADB** (шаг 0).
