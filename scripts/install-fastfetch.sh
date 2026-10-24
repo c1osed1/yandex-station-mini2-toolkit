@@ -1,5 +1,6 @@
 #!/bin/sh
 # fastfetch + красивый баннер при входе
+# shellcheck source=scripts/lib.sh
 . "$(dirname "$0")/lib.sh"
 
 connect

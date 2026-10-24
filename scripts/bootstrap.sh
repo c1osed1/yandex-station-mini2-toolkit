@@ -16,6 +16,7 @@ for a in "$@"; do
 done
 
 export STATION="${STATION:-192.168.1.94}"
+# shellcheck source=scripts/lib.sh
 . "$HERE/lib.sh"
 
 say() { printf '\n\033[1;36m### %s\033[0m\n' "$*"; }

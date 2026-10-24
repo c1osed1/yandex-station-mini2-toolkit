@@ -1,5 +1,6 @@
 #!/bin/sh
 # Spotify Connect (spotifyd) — станция как устройство в приложении Spotify
+# shellcheck source=scripts/lib.sh
 . "$(dirname "$0")/lib.sh"
 
 connect

@@ -1,5 +1,6 @@
 #!/bin/sh
 # SSH (dropbear) + ключ + автозапуск + имя хоста
+# shellcheck source=scripts/lib.sh
 . "$(dirname "$0")/lib.sh"
 
 KEY="${SSH_KEY:-$HOME/.ssh/id_alisa2}"
@@ -33,7 +34,7 @@ dev "sed -i 's/^127.0.1.1.*/127.0.1.1\t$HOSTNAME_NEW/' /etc/hosts"
 say "запуск"
 dev "/etc/init.d/S99dropbear restart >/dev/null 2>&1 || /etc/init.d/S99dropbear start"
 sleep 2
-"$ADB" -s "$SERIAL" shell "netstat -tln | grep -q ':22 '" && say "SSH слушает :22" || warn "порт 22 не слушает — смотрите логи"
+if "$ADB" -s "$SERIAL" shell "netstat -tln | grep -q ':22 '"; then say "SSH слушает :22"; else warn "порт 22 не слушает — смотрите логи"; fi
 
 cat <<TIP
 

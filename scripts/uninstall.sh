@@ -1,5 +1,6 @@
 #!/bin/sh
 # Снять всё, что ставили (ADB-гард не трогаем)
+# shellcheck source=scripts/lib.sh
 . "$(dirname "$0")/lib.sh"
 
 connect

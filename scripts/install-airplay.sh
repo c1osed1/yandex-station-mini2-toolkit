@@ -1,5 +1,6 @@
 #!/bin/sh
 # AirPlay-приёмник (shairport-sync) + освобождение ALSA
+# shellcheck source=scripts/lib.sh
 . "$(dirname "$0")/lib.sh"
 
 connect
@@ -15,7 +16,7 @@ push "$ROOT/files/etc/init.d/S99shairport" /etc/init.d/S99shairport 755
 dev "/etc/init.d/S99shairport restart >/dev/null 2>&1 || /etc/init.d/S99shairport start"
 sleep 3
 
-dev "netstat -tln | grep -q ':5000 '" && say "AirPlay слушает :5000" || warn "порт 5000 не слушает"
+if dev "netstat -tln | grep -q ':5000 '"; then say "AirPlay слушает :5000"; else warn "порт 5000 не слушает"; fi
 
 cat <<TIP
 
