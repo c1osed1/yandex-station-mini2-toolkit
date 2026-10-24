@@ -1,0 +1,6 @@
+#!/bin/sh
+# возвращаем красивое имя после S00hostname (он дописывает суффикс)
+case "$1" in
+  start) hostname alisa-2 ;;
+  *) ;;
+esac

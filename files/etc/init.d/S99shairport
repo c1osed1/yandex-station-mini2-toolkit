@@ -1,0 +1,28 @@
+#!/bin/sh
+DAEMON=/system/vendor/quasar/bin/shairport-sync
+CONF=/etc/shairport-sync.conf
+PID=/var/run/shairport.pid
+LOG=/tmp/shairport.log
+case "$1" in
+  start)
+    [ -x "$DAEMON" ] || exit 0
+    mkdir -p /var/run
+    if [ -f "$PID" ] && kill -0 "$(cat $PID)" 2>/dev/null; then exit 0; fi
+    # отложенный старт: даём системе поднять сеть и медиасервисы
+    (
+      echo "$(date) init: ждём 20 сек" >> "$LOG"
+      sleep 20
+      ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf "$DAEMON" -c "$CONF" >> "$LOG" 2>&1 &
+      echo $! > "$PID"
+      echo "$(date) init: shairport pid=$(cat $PID)" >> "$LOG"
+      sleep 15
+      /etc/airplay-free.sh
+      echo "$(date) init: карта: $(head -1 /proc/asound/card0/pcm0p/sub0/status 2>/dev/null)" >> "$LOG"
+    ) &
+    ;;
+  stop)
+    [ -f "$PID" ] && kill "$(cat $PID)" 2>/dev/null; rm -f "$PID"
+    ;;
+  restart) "$0" stop; sleep 1; "$0" start ;;
+  *) echo "usage: $0 {start|stop|restart}"; exit 1 ;;
+esac

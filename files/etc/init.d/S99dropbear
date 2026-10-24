@@ -1,0 +1,19 @@
+#!/bin/sh
+DAEMON=/system/vendor/quasar/bin/dropbear
+PID=/var/run/dropbear.pid
+case "$1" in
+  start)
+    [ -x "$DAEMON" ] || exit 0
+    mkdir -p /var/run /etc/dropbear
+    if [ -f "$PID" ] && kill -0 "$(cat $PID)" 2>/dev/null; then
+      echo "dropbear уже запущен"; exit 0
+    fi
+    "$DAEMON" -R -g -p 22 -P "$PID" && echo "dropbear запущен на :22"
+    ;;
+  stop)
+    [ -f "$PID" ] && kill "$(cat $PID)" 2>/dev/null; rm -f "$PID"
+    echo "dropbear остановлен"
+    ;;
+  restart) "$0" stop; sleep 1; "$0" start ;;
+  *) echo "usage: $0 {start|stop|restart}"; exit 1 ;;
+esac

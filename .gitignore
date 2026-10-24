@@ -1,0 +1,4 @@
+station-bin/
+*.log
+.DS_Store
+private/
