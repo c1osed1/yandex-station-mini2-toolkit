@@ -27,9 +27,10 @@ Linux-девайс — root по ADB, SSH с красивым баннером, 
 
 ## Быстрый старт
 
-**Шаг 0. Root ADB.** Это единственное, что нельзя сделать этим репозиторием. Возьмите
+**Шаг 0. Root ADB.** Это единственное, что нельзя сделать этим репозиторием — пошаговая карта
+и все грабли в [docs/ROOT-ADB.md](docs/ROOT-ADB.md). Кратко, через
 [hu553in/yandex-station-root](https://github.com/hu553in/yandex-station-root) (переупаковка
-[eQuasar](https://git.gay/iwakura/eQuasar)) и пройдите его инструкцию:
+[eQuasar](https://git.gay/iwakura/eQuasar)):
 
 1. поднять прокси и подмену DNS для `quasar.yandex.net|ru` и `scbh.yandex.net`;
 2. сбросить станцию и привязать Wi-Fi — она сама предложит установку прошивки `.46`;
@@ -140,7 +141,7 @@ make build-spotifyd     # glibc 2.28, Rust — не работает (см. вы
 build/    — сборка бинарников в Docker (dropbear, fastfetch, shairport, spotifyd)
 scripts/  — установка на станцию (bootstrap, ssh, fastfetch, airplay, uninstall)
 files/    — init-скрипты, конфиги, баннер
-docs/     — FINDINGS.md: вся техническая кухня и грабли
+docs/     — ROOT-ADB.md (как получить root), FINDINGS.md (вся техническая кухня и грабли)
 ```
 
 ## Благодарности
