@@ -22,14 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: проверить локальные ссылки в README
+      - name: локальные ссылки в README
         run: |
           set -e
+          fail=0
           grep -oE '\]\([^)]+\)' README.md | sed -E 's/^\]\(//; s/\)$//' \
-            | grep -vE '^(https?:|#|mailto:)' || true
-          grep -oE '\]\([^)]+\)' README.md | sed -E 's/^\]\(//; s/\)$//' \
-            | grep -vE '^(https?:|#|mailto:)' \
+            | sed -E 's/#.*$//' \
+            | grep -vE '^(https?:|mailto:|$)' \
+            | grep -v '^\.\./' \
+            | sort -u \
             | while read -r p; do
-                [ -e "$p" ] || { echo "битая ссылка: $p"; exit 1; }
+                if [ -e "$p" ]; then echo "ok  $p"; else echo "битая ссылка: $p"; exit 1; fi
               done
-          echo "ссылки ок"
