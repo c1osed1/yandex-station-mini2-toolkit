@@ -1,26 +1,33 @@
-## armv7 binaries
+## v1.1.0 — удобная установка
 
 Готовые бинарники под Яндекс Станцию Мини 2 (32-битный ARM, glibc 2.30).
 
-Распаковать в `bin/` рядом с репозиторием, затем:
+### Установка в две команды
 
 ```sh
-make install-ssh install-fastfetch install-spotifyd
+mkdir -p bin && tar xzf yandex-station-mini2-bin-armv7.tar.gz -C bin
+STATION=192.168.1.94 scripts/bootstrap.sh --with-airplay
 ```
 
-| Файл | Что | Сборка | Проверено на станции |
-|---|---|---|---|
-| `dropbear`, `dbclient`, `dropbearkey` | SSH-сервер | musl, статический | да |
-| `fastfetch` | баннер при входе | musl, статический | да |
-| `spotifyd` | Spotify Connect (OAuth) | glibc 2.28, Rust 1.85 | да |
-| `shairport-sync` | AirPlay | glibc 2.28, libconfig/popt статически | да |
+Требуется только root ADB на колонке — как его получить, см. README.
+
+### Что внутри архива
+
+| Файл | Что | Сборка |
+|---|---|---|
+| `dropbear`, `dbclient`, `dropbearkey` | SSH-сервер | musl, статический |
+| `fastfetch` | баннер при входе | musl, статический |
+| `shairport-sync` | AirPlay | glibc 2.28, libconfig/popt статически |
+| `spotifyd` | Spotify Connect | glibc 2.28 — **не работает**, оставлен для истории |
+
+Для работы нужны только первые три. `spotifyd` в архиве потому, что он часть истории:
+Spotify отказывает сторонним клиентам в аудиоключе (см. `docs/FINDINGS.md` § 9–11).
+
+### Новое в этой версии
+
+- `scripts/bootstrap.sh` — одна команда на всё;
+- README переписан: быстрый старт, таблица «что работает», таблица симптомов;
+- CI: `shellcheck` для всех скриптов и проверка локальных ссылок в README;
+- топики репозитория.
 
 Проверено на прошивке `0.369.1.50.4794659041.20261021.299`.
-
-### Особенности сборки
-
-- **musl не подходит для всего**: `shairport-sync` и `spotifyd` собираются под glibc 2.28,
-  иначе на ядре 4.9 падают по `clock_gettime64` (см. `docs/FINDINGS.md`).
-- **spotifyd** требует Rust 1.85+ (в lock-файле есть crate с `edition2024`), а также
-  `cmake`, `clang`/`libclang-dev` (для `aws-lc-sys`) и `nasm`.
-- **rustup в buster не работает** — старые корневые сертификаты. Rust ставится из tarball.
