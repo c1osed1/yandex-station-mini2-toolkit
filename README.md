@@ -22,15 +22,26 @@ Linux-девайс — root по ADB, SSH с красивым баннером, 
 | ✨ | `make install-fastfetch` | `fastfetch` в приветствии при входе |
 | 🎵 | `make install-airplay` | станция как AirPlay-приёмник (Spotify, Apple Music, Mac/iPhone) |
 | 📦 | `make build-all` | сборка всех бинарников в Docker, без тулчейна на хосте |
+| 🔓 | `make root-adb` | полуавтоматический root ADB (шаг 0) + `make router-dns` для OpenWrt |
 
 Всё сразу: `scripts/bootstrap.sh --with-airplay`
 
 ## Быстрый старт
 
-**Шаг 0. Root ADB.** Это единственное, что нельзя сделать этим репозиторием — пошаговая карта
-и все грабли в [docs/ROOT-ADB.md](docs/ROOT-ADB.md). Кратко, через
+**Шаг 0. Root ADB.** Полуавтомат: `make root-adb` — скрипт скачает
 [hu553in/yandex-station-root](https://github.com/hu553in/yandex-station-root) (переупаковка
-[eQuasar](https://git.gay/iwakura/eQuasar)):
+[eQuasar](https://git.gay/iwakura/eQuasar)), пропишет параметры вашей станции и проведёт по
+шагам: оффер прошивки → прокси → сброс → ожидание ADB → закрепление root.
+
+```sh
+make root-adb
+# отдельный терминал, когда попросит:
+cd ~/yandex-station-root && sudo make proxy OFFER_UPDATE=1
+# DNS станции на машину с прокси (если роутер на OpenWrt):
+PROXY_IP=<ip-этой-машины> make router-dns
+```
+
+Подробности и грабли — [docs/ROOT-ADB.md](docs/ROOT-ADB.md). Вручную это выглядит так:
 
 1. поднять прокси и подмену DNS для `quasar.yandex.net|ru` и `scbh.yandex.net`;
 2. сбросить станцию и привязать Wi-Fi — она сама предложит установку прошивки `.46`;

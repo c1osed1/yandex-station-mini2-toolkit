@@ -2,7 +2,7 @@
 STATION ?= 192.168.1.94
 export STATION
 
-.PHONY: help build-all build-dropbear build-fastfetch build-shairport build-spotifyd \
+.PHONY: help root-adb router-dns build-all build-dropbear build-fastfetch build-shairport build-spotifyd \
         install-ssh install-fastfetch install-airplay install-spotifyd uninstall lint
 
 help:
@@ -14,6 +14,10 @@ help:
 	  '  make build-spotifyd     Spotify Connect (glibc 2.28, долго)' \
 	  '  make build-all          всё подряд' \
 	  '' \
+	  'Root ADB (шаг 0) и роутер:' \
+	  '  make root-adb           оркестратор: тянет upstream-инструмент и ведёт по шагам' \
+	  '  make router-dns         DNS станции -> машина с прокси (OpenWrt)' \
+	  '' \
 	  'Установка (нужен adb и root на станции):' \
 	  '  make install-ssh        dropbear + ключ + автозапуск' \
 	  '  make install-fastfetch  fastfetch + баннер при входе' \
@@ -22,6 +26,9 @@ help:
 	  '  make uninstall          снять всё, кроме ADB-гарда' \
 	  '' \
 	  'Переменные: STATION=192.168.1.94 BIN_SRC=/путь/к/бинарникам'
+
+root-adb:   ; scripts/root-adb.sh
+router-dns: ; scripts/router-dns.sh --proxy "$${PROXY_IP:?укажите PROXY_IP=...}"
 
 build-all: build-dropbear build-fastfetch build-shairport build-spotifyd
 
