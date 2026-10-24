@@ -1,92 +1,156 @@
-# Yandex Station Mini 2 — toolkit
+# Яндекс Станция Мини 2 — root, SSH и AirPlay
 
-Всё, что нужно, чтобы получить **root ADB**, поставить **SSH**, отключить автообновления и
-добавить приёмник **AirPlay / Spotify Connect** на Яндекс Станции Мини 2.
+[![CI](https://github.com/c1osed1/yandex-station-mini2-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/c1osed1/yandex-station-mini2-toolkit/actions)
+[![Release](https://img.shields.io/github/v/release/c1osed1/yandex-station-mini2-toolkit)](https://github.com/c1osed1/yandex-station-mini2-toolkit/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Проверено на **YNDX-00020**, прошивка `0.369.1.50.4794659041.20261021.299`.
+Готовый набор для **Yandex Station Mini 2 (YNDX-00020)**: превращает колонку в нормальный
+Linux-девайс — root по ADB, SSH с красивым баннером, приёмник AirPlay и отключённые
+автообновления. Сборка бинарников и все грабли — внутри.
 
-> Всё делается на **своём** устройстве. Теряется гарантия, устройство может превратиться в
-> кирпич. Читайте [docs/FINDINGS.md](docs/FINDINGS.md) — там описано, на чём именно спотыкаются
-> люди и почему.
+Проверено на прошивке `0.369.1.50.4794659041.20261021.299`.
 
-## Что внутри
+> Работает только на **своём** устройстве. Гарантия теряется, колонку можно окирпичить.
+> Перед началом прочитайте [docs/FINDINGS.md](docs/FINDINGS.md) — там 11 разделов боли,
+> которую мы уже прошли за вас.
 
-| Компонент | Что даёт | Где |
+## Что вы получите
+
+| | Команда | Что даёт |
 |---|---|---|
-| ADB + root | шелл от root на `:5555`, переживает перезагрузки | `scripts/install-adb.sh` |
-| SSH (dropbear) | `ssh alisa-2` с баннером, только по ключу | `scripts/install-ssh.sh` |
-| fastfetch | красивый логин-баннер | `scripts/install-fastfetch.sh` |
-| AirPlay | станция как AirPlay-приёмник | `scripts/install-airplay.sh` |
-| Spotify Connect | **не работает** — Spotify не отдаёт аудио сторонним клиентам ([подробности](docs/FINDINGS.md#9-spotify-connect-не-работает-spotify-не-отдаёт-аудио-третьим-клиентам)) | `scripts/install-spotifyd.sh` |
+| 🐚 | `make install-ssh` | SSH-сервер (dropbear), вход по ключу, автозапуск, имя хоста `alisa-2` |
+| ✨ | `make install-fastfetch` | `fastfetch` в приветствии при входе |
+| 🎵 | `make install-airplay` | станция как AirPlay-приёмник (Spotify, Apple Music, Mac/iPhone) |
+| 📦 | `make build-all` | сборка всех бинарников в Docker, без тулчейна на хосте |
+
+Всё сразу: `scripts/bootstrap.sh --with-airplay`
 
 ## Быстрый старт
 
-1. Получите root ADB по инструкции из [hu553in/yandex-station-root](https://github.com/hu553in/yandex-station-root)
-   (это переупаковка [eQuasar](https://git.gay/iwakura/eQuasar)). Кратко:
-   - поднять прокси и DNS-подмену для `quasar.yandex.net|ru`, `scbh.yandex.net`;
-   - сбросить станцию, привязать Wi-Fi — станция сама предложит установку `.46`;
-   - после активации `make connect && make install`.
-2. Дальше — этим репозиторием:
+**Шаг 0. Root ADB.** Это единственное, что нельзя сделать этим репозиторием. Возьмите
+[hu553in/yandex-station-root](https://github.com/hu553in/yandex-station-root) (переупаковка
+[eQuasar](https://git.gay/iwakura/eQuasar)) и пройдите его инструкцию:
+
+1. поднять прокси и подмену DNS для `quasar.yandex.net|ru` и `scbh.yandex.net`;
+2. сбросить станцию и привязать Wi-Fi — она сама предложит установку прошивки `.46`;
+3. после активации: `make connect && make install`.
+
+На выходе — `adb connect <ip>:5555` и `adb shell` от root.
+
+**Шаг 1. Бинарники.** Скачайте архив из [Releases](../../releases) и распакуйте в `bin/`:
 
 ```sh
-export STATION=192.168.1.94        # IP станции
-scripts/install-ssh.sh             # dropbear + ключ + автозапуск
-scripts/install-fastfetch.sh       # баннер
-scripts/install-airplay.sh         # AirPlay — через него и играет Spotify
+mkdir -p bin && tar xzf yandex-station-mini2-bin-armv7.tar.gz -C bin
 ```
 
-### Spotify Connect: авторизация
-
-Пароль вводить не нужно, используется OAuth:
+**Шаг 2. Установка.**
 
 ```sh
-# 1) на станции запускаем авторизацию
-ssh alisa-2 '/system/vendor/quasar/bin/spotifyd authenticate \
-  --cache-path /system/vendor/quasar/spotifyd-cache --oauth-port 8000'
-# 2) в другом окне — туннель, чтобы redirect попал на станцию
-ssh -L 8000:127.0.0.1:8000 alisa-2
-# 3) открыть выданную ссылку в браузере и войти в Spotify
+export STATION=192.168.1.94          # IP станции
+scripts/bootstrap.sh --with-airplay  # или make install-ssh install-fastfetch install-airplay
 ```
 
-Токен сохраняется в `/system/vendor/quasar/spotifyd-cache` (переживает перезагрузку).
+**Шаг 3. Проверка.**
 
-### AirPlay выключен по умолчанию
+```sh
+ssh alisa-2          # баннер + root shell
+adb connect $STATION:5555
+```
 
-`S99shairport` в `files/` есть, но на устройстве он отключён (`S99shairport.disabled`).
-Включить обратно: `adb shell 'mv /etc/init.d/S99shairport.disabled /etc/init.d/S99shairport && /etc/init.d/S99shairport start'`.
+## Требования
+
+- Станция с **root ADB** (шаг 0).
+- macOS или Linux с `adb`; для сборки — Docker (эмуляция `linux/arm/v7`).
+- Всё ставится на системный раздел; бинарникам нужно ~4 МБ свободного места.
+
+## Что работает, а что нет
+
+Честно, по итогам проверки на живой колонке:
+
+| Возможность | Статус |
+|---|---|
+| root ADB, переживает перезагрузки | ✅ |
+| SSH (dropbear, только по ключу) | ✅ |
+| fastfetch в баннере | ✅ |
+| Отключение автообновлений (`updatesd`) | ✅ |
+| AirPlay (shairport-sync) | ✅ |
+| Spotify Connect (`spotifyd`, `librespot`, `spotiya`) | ❌ Spotify отказывает в аудиоключе — [подробности](docs/FINDINGS.md#11-окончательный-диагноз-аудиоключи-зависят-от-аккаунта) |
+| Spotify через AirPlay | ✅ (работает, задержка ~0.5 с) |
+
+## Установка по частям
+
+```sh
+scripts/install-ssh.sh         # SSH
+scripts/install-fastfetch.sh   # баннер
+scripts/install-airplay.sh     # AirPlay
+scripts/uninstall.sh           # снять всё, кроме root ADB
+```
+
+Полезные переменные: `STATION` (IP), `BIN_SRC` (каталог с бинарниками), `SSH_KEY`,
+`HOSTNAME_NEW`.
+
+## Управление
+
+```sh
+ssh alisa-2                                   # вход
+ssh alisa-2 /etc/init.d/S99shairport restart  # перезапустить AirPlay
+ssh alisa-2 /etc/init.d/S99shairport stop     # остановить AirPlay
+ssh alisa-2 /etc/init.d/S99dropbear restart   # перезапустить SSH
+```
+
+AirPlay: имя «Яндекс Станция Мини 2» в системном списке AirPlay. Задержка настраивается
+в `/etc/shairport-sync.conf` (`audio_backend_latency_offset_in_seconds`, сейчас `-1.5`).
 
 ## Сборка бинарников
 
-Готовые armv7-бинарники лежат в [Releases](../../releases). Если хотите собрать сами — есть
-скрипты в `build/`, каждый использует Docker (`--platform linux/arm/v7`), ставить тулчейн на
-хост не нужно.
+Всё собирается в Docker, на хосте ничего ставить не нужно:
 
 ```sh
-build/build-dropbear.sh    # SSH-сервер
-build/build-fastfetch.sh   # баннер
-build/build-shairport.sh   # AirPlay
-build/build-spotifyd.sh    # Spotify Connect
+make build-dropbear     # musl, статический
+make build-fastfetch    # musl, статический
+make build-shairport    # glibc 2.28 (libconfig/popt статически)
+make build-spotifyd     # glibc 2.28, Rust — не работает (см. выше)
 ```
 
-Все сборки — под **glibc 2.28** (Debian buster), потому что на станции glibc 2.30.
-musl-сборки не подходят: см. [docs/FINDINGS.md](docs/FINDINGS.md#musl-и-ядро-49-падение-по-clock_gettime64).
+Почему именно glibc для части бинарников — [docs/FINDINGS.md § 4](docs/FINDINGS.md#4-musl-и-ядро-49-падение-по-clock_gettime64).
 
-## Устройство
+## Куда что ставится
 
-| Что | Куда ставится |
+| Что | Куда |
 |---|---|
 | бинарники | `/system/vendor/quasar/bin/` |
 | init-скрипты | `/etc/init.d/S99*` (busybox init) |
 | баннер | `/etc/profile.d/alisa-banner.sh` |
 | конфиги | `/etc/*.conf` |
-| originals ADB-гарда | `/system/vendor/quasar/activate_adb.root_original.sh` |
+| оригиналы ADB-гарда | `/system/vendor/quasar/activate_adb.root_original.sh` |
 
-## Требования
+## Если не работает
 
-- Станция с root ADB.
-- Mac/Linux с `adb` и (для сборки) Docker.
-- Роутер, умеющий отдавать DNS на конкретное устройство.
+| Симптом | Куда смотреть |
+|---|---|
+| `no such file or directory` при установке | на станции нет `/data/local/tmp` — `adb shell mkdir -p /data/local/tmp` |
+| `Read-only file system` | `mount -o remount,rw /` (скрипты делают это сами) |
+| при загрузке не поднимается сервис | `/var/log/*.log`, `/tmp/*.log` на станции |
+| AirPlay «busy» | `mediad` держит ALSA — см. [§ 5](docs/FINDINGS.md#5-mediad-монопольно-держит-alsa) |
+| бинарник падает сразу | musl/`clock_gettime64` — см. [§ 4](docs/FINDINGS.md#4-musl-и-ядро-49-падение-по-clock_gettime64) |
+
+## Что внутри
+
+```
+build/    — сборка бинарников в Docker (dropbear, fastfetch, shairport, spotifyd)
+scripts/  — установка на станцию (bootstrap, ssh, fastfetch, airplay, uninstall)
+files/    — init-скрипты, конфиги, баннер
+docs/     — FINDINGS.md: вся техническая кухня и грабли
+```
+
+## Благодарности
+
+Методика получения root и идея с подменой конфига — авторам
+[eQuasar](https://git.gay/iwakura/eQuasar) и [hu553in](https://github.com/hu553in).
+AirPlay — [shairport-sync](https://github.com/mikebrady/shairport-sync).
+Spotify Connect — [librespot](https://github.com/librespot-org/librespot),
+[spotifyd](https://github.com/Spotifyd/spotifyd), [spotiya](https://github.com/klockky/spotiya).
 
 ## Лицензия
 
-MIT. Код сборки — мой; идея и базовая методика — авторам eQuasar и hu553in.
+[MIT](LICENSE)
