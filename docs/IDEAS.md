@@ -32,6 +32,37 @@
 Требует правок device tree и сборки модулей ядра под 4.9.68. На Мини 2 не проверялось,
 но SoC тот же, что у Лайт и Миди, где это работает. Это уже вмешательство в ядро, не надстройка.
 
+## Своя анимация кольца
+
+Мы пытались рисовать на кольце через sysfs и упёрлись в то, что `maind --platformd`
+перерисовывает индикатор. Правильный путь другой: анимации — это **текстовые файлы**,
+которые проигрывает штатный стек.
+
+```
+/system/vendor/quasar/ledpatterns/oknix/<событие>.led
+```
+
+Формат — кадры по 6 цветов (по числу зон) и длительность в миллисекундах:
+
+```
+loop
+6b0fff 6b0fff 6b0fff 6b0fff 6b0fff 6b0fff 20
+6b0ffe 6b0ffe 6b0ffe 6b0ffe 6b0ffe 6b0ffe 20
+```
+
+Меняем файл нужного события (`alice_listening`, `alice_speaking`, `volume`,
+`bluetooth_playing`, `timer` …) — и колонка играет нашу анимацию сама, без фоновых процессов
+и без борьбы с прошивкой.
+
+```sh
+scripts/led-pattern.sh list
+scripts/led-pattern.sh pull alice_listening > original.led
+scripts/led-pattern.sh install alice_listening my.led
+scripts/led-pattern.sh restore alice_listening
+```
+
+Перед заменой файл складывается в `/data/led-backup/`, откат — `restore` или перепрошивка.
+
 ## Свои звуки
 
 Штатные earcon'ы (звук активации, подтверждения, ошибки) лежат файлами в системе. Их можно
