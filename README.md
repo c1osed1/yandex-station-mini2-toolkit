@@ -21,6 +21,7 @@ Linux-девайс — root по ADB, SSH с красивым баннером, 
 | 🐚 | `make install-ssh` | SSH-сервер (dropbear), вход по ключу, автозапуск, имя хоста `alisa-2` |
 | ✨ | `make install-fastfetch` | `fastfetch` в приветствии при входе |
 | 🎵 | `make install-airplay` | станция как AirPlay-приёмник (Spotify, Apple Music, Mac/iPhone) |
+| 🔊 | `make install-volmirror` | общая громкость: голос Алисы и кнопки регулируют AirPlay |
 | 📦 | `make build-all` | сборка всех бинарников в Docker, без тулчейна на хосте |
 | 🔓 | `make root-adb` | полуавтоматический root ADB (шаг 0) + `make router-dns` для OpenWrt |
 

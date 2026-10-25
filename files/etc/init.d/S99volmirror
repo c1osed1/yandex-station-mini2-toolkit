@@ -1,0 +1,18 @@
+#!/bin/sh
+# Связка громкости Алисы и AirPlay (см. /etc/volmirror.sh)
+PID=/var/run/volmirror.pid
+case "$1" in
+  start)
+    [ -x /etc/volmirror.sh ] || exit 0
+    if [ -f "$PID" ] && kill -0 "$(cat $PID)" 2>/dev/null; then exit 0; fi
+    mkdir -p /var/run
+    /etc/volmirror.sh >/tmp/volmirror.log 2>&1 &
+    echo $! > "$PID"
+    ;;
+  stop)
+    [ -f "$PID" ] && kill "$(cat $PID)" 2>/dev/null
+    rm -f "$PID"
+    ;;
+  restart) "$0" stop; sleep 1; "$0" start ;;
+  *) echo "usage: $0 {start|stop|restart}"; exit 1 ;;
+esac

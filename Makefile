@@ -2,7 +2,7 @@
 STATION ?= 192.168.1.94
 export STATION
 
-.PHONY: help root-adb router-dns build-all build-dropbear build-fastfetch build-shairport build-spotifyd \
+.PHONY: help install-volmirror root-adb router-dns build-all build-dropbear build-fastfetch build-shairport build-spotifyd \
         install-ssh install-fastfetch install-airplay install-spotifyd uninstall lint
 
 help:
@@ -12,6 +12,7 @@ help:
 	  '  make build-fastfetch    баннер (musl, статический)' \
 	  '  make build-shairport    AirPlay (glibc 2.28)' \
 	  '  make build-spotifyd     Spotify Connect (glibc 2.28, долго)' \
+	  '  make build-mixvol       утилита ALSA-микшера (нужна для связки громкости)' \
 	  '  make build-all          всё подряд' \
 	  '' \
 	  'Root ADB (шаг 0) и роутер:' \
@@ -37,10 +38,12 @@ build-dropbear:    ; build/build-dropbear.sh
 build-fastfetch:   ; build/build-fastfetch.sh
 build-shairport:   ; build/build-shairport.sh
 build-spotifyd:    ; build/build-spotifyd.sh
+build-mixvol:      ; build/build-mixvol.sh
 
 install-ssh:       ; scripts/install-ssh.sh
 install-fastfetch: ; scripts/install-fastfetch.sh
 install-airplay:   ; scripts/install-airplay.sh
+install-volmirror: ; scripts/install-volmirror.sh
 install-spotifyd:  ; scripts/install-spotifyd.sh
 uninstall:         ; scripts/uninstall.sh
 
