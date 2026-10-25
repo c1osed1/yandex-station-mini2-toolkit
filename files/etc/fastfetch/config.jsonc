@@ -1,0 +1,16 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "/etc/fastfetch/yandexstation.txt",
+        "color": { "1": "1;38;2;122;85;255" },
+        "padding": { "top": 1 }
+    },
+    "modules": [
+        "title", "separator", "os", "host", "kernel", "uptime", "shell", "terminal",
+        { "type": "cpu", "temp": true },
+        "memory",
+        { "type": "disk", "folders": "/", "format": "{1} / {2} ({3})" },
+        "localip", "break", "colors"
+    ]
+}
