@@ -178,7 +178,8 @@ make build-spotifyd     # glibc 2.28, Rust — не работает (см. вы
 build/    — сборка бинарников в Docker (dropbear, fastfetch, shairport, spotifyd)
 scripts/  — установка на станцию (bootstrap, ssh, fastfetch, airplay, uninstall)
 files/    — init-скрипты, конфиги, баннер
-docs/     — DEVICE.md (железо), ROOT-ADB.md (как получить root), FINDINGS.md (грабли), BLUETOOTH.md
+docs/     — DEVICE.md (железо), ROOT-ADB.md (как получить root), FINDINGS.md (грабли),
+            BLUETOOTH.md (BT), IDEAS.md (что ещё можно сделать)
 ```
 
 ## Благодарности
