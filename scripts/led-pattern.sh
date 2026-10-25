@@ -29,7 +29,9 @@ case "${1:-}" in
 		"$ADB" -s "$SERIAL" shell "cat $DIR/$2.led" 2>/dev/null || die "нет такого паттерна: $2"
 		;;
 	install)
-		[ -n "${2:-}" ] && [ -n "${3:-}" ] || die "использование: $0 install <имя> <файл.led>"
+		if [ -z "${2:-}" ] || [ -z "${3:-}" ]; then
+			die "использование: $0 install <имя> <файл.led>"
+		fi
 		[ -f "$3" ] || die "нет файла $3"
 		connect
 		say "сохраняю оригинал в $BACKUP"
