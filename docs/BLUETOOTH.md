@@ -1,0 +1,112 @@
+# Bluetooth на Станции Мини 2
+
+Что реально работает, что нет и на чём мы спотыкались. Всё проверено на живой колонке,
+прошивка `0.369.1.50.4794659041.20261021.299`.
+
+## Железо и стек
+
+- Радиомодуль **Unisoc UWE5621** (модули `uwe5621_bsp_sdio`, `sprdwl_ng`, `sprdbt_tty`).
+- `bluealsa -p a2dp-sink -p a2dp-source -p hfp-ag --sbc-quality=high` — включены приём,
+  передача и профиль гарнитуры.
+- Адаптер раздаёт `Audio Sink (110b)`, `Audio Source (110a)`, `Audio Handsfree (111f)`.
+- В системе есть `bluetoothctl`, `hcitool`, `hciconfig`, `aplay`, ALSA-плагин
+  `/usr/lib/alsa-lib/libasound_module_pcm_bluealsa.so`.
+
+То есть технически колонка умеет и принимать звук, и отдавать его на BT-устройство.
+
+## Что работает
+
+**Приём звука с телефона** — штатный режим, профиль `a2dp-sink` поднят всегда.
+
+**Сопряжение с внешним устройством** — работает, но не с первого шага, см. грабли ниже.
+
+**Гарнитурный профиль (SCO, 8 кГц моно)** — звук до устройства доходит. Качество как
+у телефонного звонка, для музыки не годится.
+
+## Что не работает
+
+**A2DP-передача (музыка на BT-колонку или наушники).** PCM создаётся:
+
+```
+bluealsa:DEV=AA:BB:CC:DD:EE:FF,PROFILE=a2dp,SRV=org.bluealsa
+    A2DP (SBC): S16_LE 2 channels 48000 Hz
+```
+
+но при попытке играть bluealsa пишет:
+
+```
+E: Couldn't acquire transport: GDBus.Error:org.bluez.Error.Failed: Input/output error
+```
+
+Свойство `Running` у PCM остаётся `false`, звук никуда не идёт. Проверено с гарнитурой
+Logitech G435. Возможно, дело в конкретном устройстве (у игровых гарнитур Bluetooth
+урезан, основной режим — USB-донгл), но на нашем стенде A2DP так и не поднялся.
+
+**Маршрутизация музыки Алисы на BT.** `maind --mediad` открывает железное ALSA-устройство
+(`/dev/snd/pcmC0D0p`) напрямую, мимо `default` и `asound.conf`. Поэтому сказать «Алиса,
+включи моё любимое» и услышать это на BT-колонке нельзя — поток не перехватить.
+
+## Грабли
+
+1. **`Page Timeout` при сопряжении.** `bluetoothctl pair` не может достучаться до устройства,
+   пока не поднят ACL-линк. Лечится так:
+
+   ```sh
+   hcitool cc AA:BB:CC:DD:EE:FF
+   bluetoothctl pair AA:BB:CC:DD:EE:FF
+   ```
+
+2. **`bluetoothctl` не видит устройство, которое видит `hcitool`.** Скан в `bluetoothctl`
+   и классический инквайринг — разные вещи. Если в списке пусто, а `hcitool scan` находит,
+   держите `bluetoothctl scan on` запущенным в фоне во время сопряжения.
+
+3. **Сопряжение не переживает перезагрузку.** База bluez лежит во временной ФС:
+   после ребута `bluetoothctl devices` пуст. Сопрягать нужно заново каждый раз.
+
+4. **`bluetoothctl` падает с segfault.** В `dmesg`:
+
+   ```
+   bluetoothctl[16606]: unhandled level 3 translation fault (11)
+   ```
+
+   Стек старый и кривой. Помогает повторить операцию, иногда через D-Bus:
+
+   ```sh
+   dbus-send --system --print-reply --dest=org.bluez \
+     /org/bluez/hci0/dev_AA_BB_CC_DD_EE_FF org.bluez.Device1.Connect
+   ```
+
+5. **bluealsa не занимает имя в D-Bus**, если его убивали руками:
+   `Couldn't acquire D-Bus name ... org.bluealsa`. Поднимайте через init-скрипт:
+
+   ```sh
+   /etc/init.d/S52bluealsa restart
+   ```
+
+6. **Не убивайте `maind --mediad` в цикле.** Он перезапускается супервизором, и если
+   долбить его подряд, станция уходит в чехарду перезапусков и звук ломается вообще.
+   Для AirPlay достаточно одного срабатывания `/etc/airplay-free.sh`.
+
+## Как сопрячь за один шаг
+
+```sh
+scripts/bt-pair.sh --list                     # что видно в эфире
+scripts/bt-pair.sh AA:BB:CC:DD:EE:FF          # сопрячь и проверить A2DP
+scripts/bt-pair.sh AA:BB:CC:DD:EE:FF --test tone.wav
+```
+
+Скрипт сам делает `hcitool cc`, повторяет сопряжение до трёх раз, перезапускает bluealsa
+при необходимости и говорит, появился ли A2DP.
+
+## Если A2DP всё-таки поднимется
+
+Тогда AirPlay можно гнать на BT-устройство. В `/etc/shairport-sync.conf`:
+
+```
+alsa = {
+  output_device = "bluealsa:DEV=AA:BB:CC:DD:EE:FF,PROFILE=a2dp";
+};
+```
+
+и перезапуск: `/etc/init.d/S99shairport restart`. Своя колонка при этом молчит — звук
+уходит целиком в BT.
