@@ -16,7 +16,6 @@ LIST=0; TESTFILE=""
 for a in "$@"; do
 	case "$a" in
 		--list) LIST=1 ;;
-		--test) TEST=1 ;;
 		*.wav) TESTFILE=$a ;;
 		-h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 		*:*) MAC=$a ;;
