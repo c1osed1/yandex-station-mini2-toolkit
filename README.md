@@ -25,6 +25,7 @@ Linux-девайс — root по ADB, SSH с красивым баннером, 
 | 🎧 | `scripts/bt-pair.sh` | сопряжение BT-устройства с обходом грабель — см. [docs/BLUETOOTH.md](docs/BLUETOOTH.md) |
 | 💡 | `scripts/led-pattern.sh` | свои анимации кольца через подмену `.led` — см. [docs/IDEAS.md](docs/IDEAS.md) |
 | 📦 | `make build-all` | сборка всех бинарников в Docker, без тулчейна на хосте |
+| 📘 | [docs/USAGE.md](docs/USAGE.md) | шпаргалка: как всем этим пользоваться каждый день |
 | 🔓 | `make root-adb` | полуавтоматический root ADB (шаг 0) + `make router-dns` для OpenWrt |
 
 Всё сразу: `scripts/bootstrap.sh --with-airplay`
