@@ -14,8 +14,8 @@ dev "mkdir -p /data/sounds"
 case "${1:-}" in
 	--url)
 		[ -n "${2:-}" ] || die "укажите URL"
-		say "играю поток $2"
-		dev "cd /system/vendor/quasar && LD_LIBRARY_PATH=/system/vendor/quasar:/system/vendor/quasar/libs GST_PLUGIN_PATH=/system/vendor/quasar/libs ./maind --gst-launch 'souphttpsrc location=$2 ! decodebin ! audioconvert ! audioresample ! alsasink' >/tmp/gst.log 2>&1 &"
+		say "играю поток $2 (в фоне, лог /tmp/gst.log)"
+		dev "cd /system/vendor/quasar && nohup env LD_LIBRARY_PATH=/system/vendor/quasar:/system/vendor/quasar/libs GST_PLUGIN_PATH=/system/vendor/quasar/libs ./maind --gst-launch 'souphttpsrc location=$2 ! decodebin ! audioconvert ! audioresample ! alsasink' >/tmp/gst.log 2>&1 &"
 		;;
 	"")
 		die "укажите файл или --url"
@@ -25,12 +25,12 @@ case "${1:-}" in
 		name=$(basename "$1")
 		say "заливаю $name"
 		push "$1" "/data/sounds/$name" 644
-		say "играю через gst-launch"
-		dev "cd /system/vendor/quasar && LD_LIBRARY_PATH=/system/vendor/quasar:/system/vendor/quasar/libs GST_PLUGIN_PATH=/system/vendor/quasar/libs ./maind --gst-launch 'filesrc location=/data/sounds/$name ! decodebin ! audioconvert ! audioresample ! alsasink' >/tmp/gst.log 2>&1 &"
+		say "играю через gst-launch (ждём окончания)"
+		# в фоне нельзя: adb shell убивает процесс вместе с сессией
+		dev "cd /system/vendor/quasar && LD_LIBRARY_PATH=/system/vendor/quasar:/system/vendor/quasar/libs GST_PLUGIN_PATH=/system/vendor/quasar/libs ./maind --gst-launch 'filesrc location=/data/sounds/$name ! decodebin ! audioconvert ! audioresample ! alsasink' >/tmp/gst.log 2>&1"
 		;;
 esac
 
-sleep 1
 dev "tail -2 /tmp/gst.log 2>/dev/null | cut -c1-100"
 cat <<TIP
 
