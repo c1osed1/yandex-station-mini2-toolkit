@@ -12,6 +12,11 @@ case "$1" in
     (
       echo "$(date) init: ждём 20 сек" >> "$LOG"
       sleep 20
+      # если поднят bt-proxy, MPRIS публикуем на его приватную шину —
+      # тогда Алиса видит приёмник как подключённый Bluetooth-телефон
+      if [ -S /tmp/btbus/socket ]; then
+        export DBUS_SYSTEM_BUS_ADDRESS="unix:path=/tmp/btbus/socket"
+      fi
       ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf "$DAEMON" -c "$CONF" >> "$LOG" 2>&1 &
       echo $! > "$PID"
       echo "$(date) init: shairport pid=$(cat $PID)" >> "$LOG"
