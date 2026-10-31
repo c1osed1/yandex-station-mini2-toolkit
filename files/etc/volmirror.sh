@@ -25,7 +25,11 @@ was_playing=0
 while :; do
 	if playing; then
 		cur=$(mix_get Master)
-		if [ -n "$cur" ] && [ "$cur" != "$prev" ]; then
+		if [ -z "$prev" ]; then
+			# только что началась сессия: запоминаем значение Алисы, но НЕ пишем его,
+			# иначе затираем громкость, которую выставил телефон/плеер
+			prev=$cur
+		elif [ -n "$cur" ] && [ "$cur" != "$prev" ]; then
 			mix_set "SPK Master" "$cur"
 			prev=$cur
 		fi
